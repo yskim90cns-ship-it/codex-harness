@@ -1,0 +1,7 @@
+interface:
+  display_name: "Project Review"
+  short_description: "Review project changes against guardrails"
+  default_prompt: "Use $project-review to review the current project changes."
+
+policy:
+  allow_implicit_invocation: true

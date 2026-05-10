@@ -1,0 +1,14 @@
+node_modules/
+.venv/
+.pytest_cache/
+.claude/tdd-guard/data/
+.DS_Store
+tdd-*.log
+.next/
+out/
+next-env.d.ts
+tsconfig.tsbuildinfo
+
+# phase execution outputs
+phases/**/phase*-output.json
+phases/**/step*-output.json

@@ -1,0 +1,20 @@
+[features]
+codex_hooks = true
+
+[[hooks.PreToolUse]]
+matcher = "^apply_patch$|^Edit$|^Write$|^MultiEdit$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = '/bin/bash "/Users/kax/Documents/codex-harness/.codex/hooks/tdd-guard.sh"'
+timeout = 10
+statusMessage = "Checking TDD guard"
+
+[[hooks.Stop]]
+matcher = ""
+
+[[hooks.Stop.hooks]]
+type = "command"
+command = '/bin/bash "/Users/kax/Documents/codex-harness/.codex/hooks/lint_build_test.sh"'
+timeout = 120
+statusMessage = "Running lint, build, and tests"

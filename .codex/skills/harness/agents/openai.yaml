@@ -1,0 +1,7 @@
+interface:
+  display_name: "Harness"
+  short_description: "Plan and run Harness phase workflows"
+  default_prompt: "Use $harness to plan a Harness task and create phase step files."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "tdd-guard": "^1.6.8"
+  }
+}
