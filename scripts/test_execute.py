@@ -4,10 +4,8 @@ execute.py 리팩터링 안전망 테스트.
 """
 
 import json
-import os
-import subprocess
+import contextlib
 import sys
-import textwrap
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from unittest.mock import patch, MagicMock
@@ -399,6 +397,10 @@ class TestCommitStep:
         assert "feat(mvp):" in commit_calls[0][2]
         assert "chore(mvp):" in commit_calls[1][2]
 
+        reset_calls = [c for c in calls if c[0] == "reset"]
+        assert ("reset", "HEAD", "--", "phases/0-mvp/step2-output.json") in reset_calls
+        assert ("reset", "HEAD", "--", "phases/0-mvp/index.json") in reset_calls
+
     def test_no_code_changes_skips_feat_commit(self, executor):
         call_count = {"diff": 0}
         calls = []
@@ -435,10 +437,21 @@ class TestInvokeCodex:
         cmd = mock_run.call_args[0][0]
         assert cmd[0] == "codex"
         assert cmd[1] == "exec"
-        assert "--dangerously-bypass-approvals-and-sandbox" in cmd
+        assert "--dangerously-bypass-approvals-and-sandbox" not in cmd
         assert "--json" in cmd
         assert "PREAMBLE" in cmd[-1]
         assert "UI를 구현하세요" in cmd[-1]
+
+    def test_dangerous_bypass_is_opt_in(self, executor):
+        executor._dangerous_bypass_sandbox = True
+        mock_result = MagicMock(returncode=0, stdout='{"result": "ok"}', stderr="")
+        step = {"step": 2, "name": "ui"}
+
+        with patch("subprocess.run", return_value=mock_result) as mock_run:
+            executor._invoke_codex(step, "preamble")
+
+        cmd = mock_run.call_args[0][0]
+        assert "--dangerously-bypass-approvals-and-sandbox" in cmd
 
     def test_saves_output_json(self, executor):
         mock_result = MagicMock(returncode=0, stdout='{"ok": true}', stderr="")
@@ -514,6 +527,17 @@ class TestMainCli:
                     ex.main()
                 assert exc_info.value.code == 1
 
+    def test_dangerous_bypass_cli_flag(self):
+        with patch("sys.argv", ["execute.py", "0-example", "--dangerous-bypass-sandbox"]):
+            with patch.object(ex, "StepExecutor") as mock_executor:
+                ex.main()
+        mock_executor.assert_called_once_with(
+            "0-example",
+            auto_push=False,
+            dangerous_bypass_sandbox=True,
+        )
+        mock_executor.return_value.run.assert_called_once()
+
 
 # ---------------------------------------------------------------------------
 # _check_blockers (= 이전 main() error/blocked 체크)
@@ -557,3 +581,120 @@ class TestCheckBlockers:
         with pytest.raises(SystemExit) as exc_info:
             inst._check_blockers()
         assert exc_info.value.code == 2
+
+
+# ---------------------------------------------------------------------------
+# _execute_single_step retry/error/blocked 처리
+# ---------------------------------------------------------------------------
+
+@contextlib.contextmanager
+def quiet_progress(_label):
+    yield MagicMock(elapsed=0)
+
+
+class TestExecuteSingleStep:
+    def _step2(self):
+        return {"step": 2, "name": "ui", "status": "pending"}
+
+    def _write_step_status(self, executor, **updates):
+        index = json.loads(executor._index_file.read_text())
+        for step in index["steps"]:
+            if step["step"] == 2:
+                step.update(updates)
+        executor._index_file.write_text(json.dumps(index, indent=2, ensure_ascii=False))
+
+    def test_completed_step_commits_and_timestamps(self, executor):
+        commit_calls = []
+        executor._commit_step = lambda step_num, step_name: commit_calls.append((step_num, step_name))
+
+        def fake_invoke(_step, _preamble):
+            self._write_step_status(
+                executor,
+                status="completed",
+                summary="UI 구현 완료",
+            )
+
+        executor._invoke_codex = fake_invoke
+
+        with patch.object(ex, "progress_indicator", quiet_progress):
+            assert executor._execute_single_step(self._step2(), "guards") is True
+
+        index = json.loads(executor._index_file.read_text())
+        step = next(s for s in index["steps"] if s["step"] == 2)
+        assert step["status"] == "completed"
+        assert "completed_at" in step
+        assert commit_calls == [(2, "ui")]
+
+    def test_retries_pending_step_then_completes(self, executor):
+        attempts = {"count": 0}
+        preambles = []
+        original_build_preamble = executor._build_preamble
+
+        def tracking_preamble(guardrails, step_context, prev_error=None):
+            preambles.append(prev_error)
+            return original_build_preamble(guardrails, step_context, prev_error)
+
+        def fake_invoke(_step, _preamble):
+            attempts["count"] += 1
+            if attempts["count"] == 1:
+                self._write_step_status(
+                    executor,
+                    status="pending",
+                    error_message="lint failed",
+                )
+            else:
+                self._write_step_status(
+                    executor,
+                    status="completed",
+                    summary="재시도 후 완료",
+                )
+
+        executor._build_preamble = tracking_preamble
+        executor._invoke_codex = fake_invoke
+        executor._commit_step = lambda *_args: None
+
+        with patch.object(ex, "progress_indicator", quiet_progress):
+            assert executor._execute_single_step(self._step2(), "guards") is True
+
+        assert attempts["count"] == 2
+        assert preambles == [None, "lint failed"]
+
+    def test_marks_error_after_max_retries(self, executor):
+        executor._invoke_codex = lambda _step, _preamble: self._write_step_status(
+            executor,
+            status="pending",
+            error_message="tests failed",
+        )
+        executor._commit_step = lambda *_args: None
+        executor._update_top_index = MagicMock()
+
+        with patch.object(ex, "progress_indicator", quiet_progress):
+            with pytest.raises(SystemExit) as exc_info:
+                executor._execute_single_step(self._step2(), "guards")
+
+        assert exc_info.value.code == 1
+        index = json.loads(executor._index_file.read_text())
+        step = next(s for s in index["steps"] if s["step"] == 2)
+        assert step["status"] == "error"
+        assert "3회 시도 후 실패" in step["error_message"]
+        assert "failed_at" in step
+        executor._update_top_index.assert_called_once_with("error")
+
+    def test_blocked_step_exits_and_updates_top_index(self, executor):
+        executor._invoke_codex = lambda _step, _preamble: self._write_step_status(
+            executor,
+            status="blocked",
+            blocked_reason="API key required",
+        )
+        executor._update_top_index = MagicMock()
+
+        with patch.object(ex, "progress_indicator", quiet_progress):
+            with pytest.raises(SystemExit) as exc_info:
+                executor._execute_single_step(self._step2(), "guards")
+
+        assert exc_info.value.code == 2
+        index = json.loads(executor._index_file.read_text())
+        step = next(s for s in index["steps"] if s["step"] == 2)
+        assert step["status"] == "blocked"
+        assert "blocked_at" in step
+        executor._update_top_index.assert_called_once_with("blocked")

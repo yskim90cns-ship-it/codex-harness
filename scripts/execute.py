@@ -3,13 +3,12 @@
 Harness Step Executor — phase 내 step을 순차 실행하고 자가 교정한다.
 
 Usage:
-    python3 scripts/execute.py <phase-dir> [--push]
+    python3 scripts/execute.py <phase-dir> [--push] [--dangerous-bypass-sandbox]
 """
 
 import argparse
 import contextlib
 import json
-import os
 import subprocess
 import sys
 import threading
@@ -58,13 +57,20 @@ class StepExecutor:
     CHORE_MSG = "chore({phase}): step {num} output"
     TZ = timezone(timedelta(hours=9))
 
-    def __init__(self, phase_dir_name: str, *, auto_push: bool = False):
+    def __init__(
+        self,
+        phase_dir_name: str,
+        *,
+        auto_push: bool = False,
+        dangerous_bypass_sandbox: bool = False,
+    ):
         self._root = str(ROOT)
         self._phases_dir = ROOT / "phases"
         self._phase_dir = self._phases_dir / phase_dir_name
         self._phase_dir_name = phase_dir_name
         self._top_index_file = self._phases_dir / "index.json"
         self._auto_push = auto_push
+        self._dangerous_bypass_sandbox = dangerous_bypass_sandbox
 
         if not self._phase_dir.is_dir():
             print(f"ERROR: {self._phase_dir} not found")
@@ -235,8 +241,13 @@ class StepExecutor:
             sys.exit(1)
 
         prompt = preamble + step_file.read_text()
+        cmd = ["codex", "exec"]
+        if self._dangerous_bypass_sandbox:
+            cmd.append("--dangerously-bypass-approvals-and-sandbox")
+        cmd.extend(["--json", prompt])
+
         result = subprocess.run(
-            ["codex", "exec", "--dangerously-bypass-approvals-and-sandbox", "--json", prompt],
+            cmd,
             cwd=self._root, capture_output=True, text=True, timeout=1800,
         )
 
@@ -264,6 +275,8 @@ class StepExecutor:
         print(f"  Phase: {self._phase_name} | Steps: {self._total}")
         if self._auto_push:
             print(f"  Auto-push: enabled")
+        if self._dangerous_bypass_sandbox:
+            print(f"  Sandbox bypass: enabled")
         print(f"{'='*60}")
 
     def _check_blockers(self):
@@ -408,9 +421,18 @@ def main():
     parser = argparse.ArgumentParser(description="Harness Step Executor")
     parser.add_argument("phase_dir", help="Phase directory name (e.g. 0-mvp)")
     parser.add_argument("--push", action="store_true", help="Push branch after completion")
+    parser.add_argument(
+        "--dangerous-bypass-sandbox",
+        action="store_true",
+        help="Pass codex exec --dangerously-bypass-approvals-and-sandbox. Use only for trusted local projects.",
+    )
     args = parser.parse_args()
 
-    StepExecutor(args.phase_dir, auto_push=args.push).run()
+    StepExecutor(
+        args.phase_dir,
+        auto_push=args.push,
+        dangerous_bypass_sandbox=args.dangerous_bypass_sandbox,
+    ).run()
 
 
 if __name__ == "__main__":

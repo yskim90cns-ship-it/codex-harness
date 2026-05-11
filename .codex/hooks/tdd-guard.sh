@@ -7,17 +7,26 @@ set -euo pipefail
 # not installed yet, do not block the session; print setup guidance instead.
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+HOOK_DATA="$(cat)"
+
+if [[ -z "$HOOK_DATA" ]]; then
+  echo "TDD Guard hook data is empty; skipping direct-run check." >&2
+  exit 0
+fi
 
 if [[ -x "$ROOT_DIR/node_modules/.bin/tdd-guard" ]]; then
-  exec "$ROOT_DIR/node_modules/.bin/tdd-guard"
+  printf "%s" "$HOOK_DATA" | "$ROOT_DIR/node_modules/.bin/tdd-guard"
+  exit $?
 fi
 
 if [[ -x "$ROOT_DIR/.venv/bin/tdd-guard" ]]; then
-  exec "$ROOT_DIR/.venv/bin/tdd-guard"
+  printf "%s" "$HOOK_DATA" | "$ROOT_DIR/.venv/bin/tdd-guard"
+  exit $?
 fi
 
 if command -v tdd-guard >/dev/null 2>&1; then
-  exec tdd-guard
+  printf "%s" "$HOOK_DATA" | tdd-guard
+  exit $?
 fi
 
 cat >&2 <<'EOF'
@@ -27,5 +36,9 @@ Install one of these before relying on enforcement:
   npm install -g tdd-guard
   python -m pip install tdd-guard
 EOF
+
+if [[ "${TDD_GUARD_REQUIRED:-0}" == "1" ]]; then
+  exit 1
+fi
 
 exit 0
