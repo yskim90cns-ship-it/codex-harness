@@ -1,0 +1,9 @@
+{
+  "phases": [
+    {
+      "dir": "0-live-voice-translator",
+      "status": "blocked",
+      "blocked_at": "2026-05-26T23:51:47+0900"
+    }
+  ]
+}

@@ -1,10 +1,34 @@
 {
+  "name": "live-voice-translator",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "lint": "echo \"No lint script configured for this template\"",
-    "build": "echo \"No build script configured for this template\"",
-    "test": "python3 scripts/run_tests.py"
+    "dev": "next dev",
+    "build": "next build",
+    "lint": "eslint .",
+    "test": "python3 scripts/run_tests.py && vitest run"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "next": "^15.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "tdd-guard": "^1.6.8"
+    "@eslint/eslintrc": "^3.2.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.17",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.17.0",
+    "eslint-config-next": "^15.0.0",
+    "jsdom": "^25.0.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "tdd-guard": "^1.6.8",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
   }
 }

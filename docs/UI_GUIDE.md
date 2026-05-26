@@ -1,76 +1,119 @@
 # UI 디자인 가이드
 
 ## 디자인 원칙
-1. {원칙 1 — 예: "도구처럼 보여야 한다. 마케팅 페이지가 아니라 매일 쓰는 대시보드."}
-2. {원칙 2}
-3. {원칙 3}
+1. 첫 화면은 바로 사용할 수 있는 번역 도구여야 한다. 마케팅 랜딩 페이지, 히어로 카피, 기능 소개 섹션을 먼저 보여주지 않는다.
+2. 사용자는 지금 듣고 있는 말과 번역 결과를 빠르게 스캔해야 한다. 큰 자막, 명확한 상태, 낮은 시각적 소음을 우선한다.
+3. 실시간 시스템의 불확실성을 숨기지 않는다. 듣는 중, 인식 중, 번역 중, 오류, 권한 거부 상태를 작고 정확하게 표시한다.
+4. 음성 번역 제품은 신뢰감이 중요하다. 장식보다 안정적인 컨트롤, 읽기 쉬운 대비, 예측 가능한 레이아웃을 우선한다.
 
-## AI 슬롭 안티패턴 — 하지 마라
+## AI 슬롭 안티패턴 - 하지 마라
 | 금지 사항 | 이유 |
 |-----------|------|
 | backdrop-filter: blur() | glass morphism은 AI 템플릿의 가장 흔한 징후 |
-| gradient-text (배경 그라데이션 텍스트) | AI가 만든 SaaS 랜딩의 1번 특징 |
+| gradient-text | AI가 만든 SaaS 랜딩의 1번 특징 |
 | "Powered by AI" 배지 | 기능이 아니라 장식. 사용자에게 가치 없음 |
-| box-shadow 글로우 애니메이션 | 네온 글로우 = AI 슬롭 |
+| box-shadow 글로우 애니메이션 | 네온 글로우는 번역 텍스트 가독성을 떨어뜨린다 |
 | 보라/인디고 브랜드 색상 | "AI = 보라색" 클리셰 |
 | 모든 카드에 동일한 rounded-2xl | 균일한 둥근 모서리는 템플릿 느낌 |
-| 배경 gradient orb (blur-3xl 원형) | 모든 AI 랜딩 페이지에 있는 장식 |
+| 배경 gradient orb | 모든 AI 랜딩 페이지에 있는 장식 |
+| 과장된 히어로 문구 | 제품 품질보다 마케팅처럼 보인다 |
+| 자막 영역 주변의 과도한 애니메이션 | 사용자가 번역 텍스트를 읽는 데 방해된다 |
 
 ## 색상
 ### 배경
 | 용도 | 값 |
 |------|------|
-| 페이지 | {예: #0a0a0a} |
-| 카드 | {예: #141414} |
+| 페이지 | #090909 |
+| 주요 패널 | #121212 |
+| 보조 패널 | #181818 |
+| 경계선 | #2a2a2a |
 
 ### 텍스트
 | 용도 | 값 |
 |------|------|
-| 주 텍스트 | {예: text-white} |
-| 본문 | {예: text-neutral-300} |
-| 보조 | {예: text-neutral-400} |
-| 비활성 | {예: text-neutral-500} |
+| 주 텍스트 | #f5f5f5 |
+| 본문 | #d4d4d4 |
+| 보조 | #a3a3a3 |
+| 비활성 | #737373 |
+| 오류 텍스트 | #fca5a5 |
 
 ### 데이터/시맨틱 색상
 | 용도 | 값 |
 |------|------|
-| {긍정/성공} | {예: #22c55e} |
-| {부정/에러} | {예: #ef4444} |
-| {중립/기본} | {예: #525252} |
+| 듣는 중 | #22c55e |
+| 번역 중 | #2dd4bf |
+| 대기 | #737373 |
+| 오류 | #ef4444 |
+| 권한 필요 | #f59e0b |
 
 ## 컴포넌트
-### 카드
+### 패널
 ```
-{예: rounded-lg bg-[#141414] border border-neutral-800 p-6}
+rounded-lg bg-[#121212] border border-[#2a2a2a] p-4
 ```
 
 ### 버튼
 ```
-Primary: {예: rounded-lg bg-white text-black hover:bg-neutral-200}
-Text:    {예: text-neutral-500 hover:text-neutral-300}
+Primary:   rounded-md bg-[#f5f5f5] text-[#090909] hover:bg-[#d4d4d4]
+Danger:    rounded-md bg-[#ef4444] text-white hover:bg-[#dc2626]
+Secondary: rounded-md border border-[#2a2a2a] text-[#f5f5f5] hover:bg-[#181818]
+Icon:      h-9 w-9 rounded-md border border-[#2a2a2a]
 ```
 
 ### 입력 필드
 ```
-{예: rounded-lg bg-neutral-900 border border-neutral-800 px-4 py-3}
+rounded-md bg-[#181818] border border-[#2a2a2a] px-3 py-2 text-sm
 ```
 
+### 언어 선택
+- 입력 언어와 출력 언어는 같은 행에 배치한다.
+- 두 언어 사이에는 전환 버튼을 둔다.
+- 언어 이름은 전체 표기와 짧은 코드 중 하나로 통일한다. 예: `Korean`, `English`, `Japanese`.
+
+### 마이크 컨트롤
+- 시작/중지 버튼은 화면에서 가장 찾기 쉬운 위치에 둔다.
+- 상태에 따라 버튼 라벨을 바꾼다: `Start`, `Stop`, `Request permission`.
+- 마이크 권한 요청 중에는 중복 클릭을 막는다.
+
+### 자막 패널
+- 원문과 번역을 나란히 표시하되 모바일에서는 세로로 쌓는다.
+- 확정되지 않은 부분 전사는 낮은 대비로 표시한다.
+- 확정된 문장은 주 텍스트 대비로 표시한다.
+- 번역 결과가 아직 도착하지 않은 경우 기존 텍스트를 지우지 않고 작은 `Translating` 상태만 표시한다.
+
 ## 레이아웃
-- 전체 너비: {예: max-w-5xl}
-- 정렬: {예: 좌측 정렬 기본. 중앙 정렬 금지}
-- 간격: {예: gap-3~4, 섹션 간 space-y-8}
+- 전체 너비: `max-w-6xl`
+- 정렬: 좌측 정렬 기본. 자막 텍스트는 읽기 편하도록 왼쪽 정렬한다.
+- 간격: 컨트롤 영역 `gap-3`, 자막 영역 `gap-4`, 히스토리 영역 `gap-2`
+- 데스크톱: 상단 컨트롤, 중앙 2열 자막, 하단 히스토리
+- 모바일: 상단 컨트롤, 원문 패널, 번역 패널, 히스토리 순서
+- 화면 높이가 낮아도 시작/중지 버튼과 현재 번역 결과가 첫 화면에 남아야 한다.
 
 ## 타이포그래피
 | 용도 | 스타일 |
 |------|--------|
-| 페이지 제목 | {예: text-4xl font-semibold text-white} |
-| 카드 제목 | {예: text-sm font-medium text-neutral-400} |
-| 본문 | {예: text-sm text-neutral-300 leading-relaxed} |
+| 앱 제목 | text-lg font-semibold text-[#f5f5f5] |
+| 패널 제목 | text-xs font-medium uppercase text-[#a3a3a3] |
+| 원문 자막 | text-2xl md:text-3xl font-medium leading-snug text-[#f5f5f5] |
+| 번역 자막 | text-3xl md:text-4xl font-semibold leading-tight text-[#f5f5f5] |
+| 부분 전사 | text-xl md:text-2xl text-[#737373] leading-snug |
+| 히스토리 | text-sm text-[#d4d4d4] leading-relaxed |
+| 상태 텍스트 | text-xs text-[#a3a3a3] |
 
 ## 애니메이션
-- {허용할 애니메이션만 나열. 예: fade-in (0.4s), slide-up (0.5s)}
-- {그 외 모든 애니메이션 금지}
+- 허용: 상태 점멸 `opacity` 0.8초, 패널 등장 `fade-in` 0.2초, 새 히스토리 줄 `slide-up` 0.2초
+- 금지: 글로우, 배경 이동, 텍스트 흔들림, 자동 스크롤 과속 애니메이션
+- 실시간 텍스트 업데이트는 레이아웃 점프가 없어야 한다.
 
 ## 아이콘
-- {예: SVG 인라인, strokeWidth 1.5}
-- {예: 아이콘 컨테이너(둥근 배경 박스)로 감싸지 않는다}
+- `lucide-react`가 설치되어 있다면 해당 아이콘을 사용한다.
+- 마이크: `Mic`, 중지: `Square`, 언어 전환: `ArrowLeftRight`, 오류: `AlertTriangle`, 히스토리: `Clock`
+- 아이콘 버튼에는 접근 가능한 `aria-label`을 제공한다.
+- 아이콘은 장식 박스에 넣지 말고 버튼 안에서 직접 정렬한다.
+
+## 접근성
+- 마이크 시작/중지 버튼은 키보드로 조작 가능해야 한다.
+- 실시간 상태 텍스트에는 `aria-live="polite"`를 사용한다.
+- 오류 메시지는 `role="alert"`를 사용한다.
+- 색상만으로 상태를 구분하지 않는다. 상태 텍스트를 함께 표시한다.
+- 자막 패널은 충분한 줄 높이를 유지해 긴 문장이 겹치지 않게 한다.
