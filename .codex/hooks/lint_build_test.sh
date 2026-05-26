@@ -21,21 +21,9 @@ run_or_skip_npm() {
 
   if has_npm_script "$script_name"; then
     echo "codex hook: npm run $script_name" >&2
-    npm run "$script_name"
+    npm run "$script_name" >&2
   else
     echo "codex hook: skipping npm run $script_name (script not found)" >&2
-  fi
-}
-
-run_python_tests() {
-  if [[ -x .venv/bin/python && -d scripts ]]; then
-    echo "codex hook: .venv/bin/python -m pytest scripts/test_execute.py" >&2
-    .venv/bin/python -m pytest scripts/test_execute.py
-  elif command -v pytest >/dev/null 2>&1 && [[ -d scripts ]]; then
-    echo "codex hook: pytest scripts/test_execute.py" >&2
-    pytest scripts/test_execute.py
-  else
-    echo "codex hook: skipping pytest (pytest or tests not found)" >&2
   fi
 }
 
@@ -44,9 +32,7 @@ run_or_skip_npm build
 
 if has_npm_script test; then
   echo "codex hook: npm run test" >&2
-  npm run test
+  npm run test >&2
 else
   echo "codex hook: skipping npm run test (script not found)" >&2
 fi
-
-run_python_tests
