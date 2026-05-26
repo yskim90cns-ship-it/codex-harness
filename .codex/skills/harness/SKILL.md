@@ -1,6 +1,6 @@
 ---
 name: harness
-description: Use this skill when working in this Harness-framework project: reading docs, discussing implementation decisions, designing phase/step plans, creating phases metadata and step files, or running scripts/execute.py workflows.
+description: "Use this skill when working in this Harness-framework project: reading docs, discussing implementation decisions, designing phase/step plans, creating phases metadata and step files, or running scripts/execute.py workflows."
 ---
 
 # Harness
