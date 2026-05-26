@@ -21,7 +21,10 @@
     {
       "step": 2,
       "name": "translation-api",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-05-26T23:58:58+0900",
+      "summary": "Server-only translation route and service boundary added with validation and tests",
+      "completed_at": "2026-05-27T00:01:52+0900"
     },
     {
       "step": 3,
