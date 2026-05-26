@@ -23,6 +23,23 @@ describe("POST /api/translate", () => {
     expect(response.status).toBe(400);
   });
 
+  it("returns 400 for malformed JSON bodies", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/translate", {
+        method: "POST",
+        body: "{",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }),
+    );
+
+    await expect(response.json()).resolves.toEqual({
+      error: "Invalid request body.",
+    });
+    expect(response.status).toBe(400);
+  });
+
   it("returns 400 for unsupported language codes", async () => {
     const response = await POST(
       jsonRequest({

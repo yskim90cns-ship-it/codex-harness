@@ -100,6 +100,25 @@ describe("MicControl", () => {
       screen.getByRole("button", { name: "Request permission" }),
     ).toBeInTheDocument();
   });
+
+  it("announces microphone status changes politely", () => {
+    render(
+      <MicControl
+        micStatus="unsupported"
+        errorMessage="Speech recognition is not supported in this browser."
+        onStart={vi.fn()}
+        onStop={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Speech recognition unsupported")).toHaveAttribute(
+      "aria-live",
+      "polite",
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Speech recognition is not supported in this browser.",
+    );
+  });
 });
 
 describe("subtitle panels", () => {
@@ -142,6 +161,35 @@ describe("subtitle panels", () => {
     expect(screen.getByText("안녕하세요")).toBeInTheDocument();
     expect(screen.getByRole("alert")).toHaveTextContent(
       "Translation failed. Try again.",
+    );
+  });
+
+  it("announces transcript and translation updates politely", () => {
+    render(
+      <>
+        <TranscriptPanel
+          finalTranscript="Hello world"
+          partialTranscript="still listening"
+        />
+        <TranslationPanel
+          translatedText="안녕하세요"
+          isTranslating={true}
+          errorMessage={null}
+        />
+      </>,
+    );
+
+    expect(screen.getByText("Hello world").parentElement).toHaveAttribute(
+      "aria-live",
+      "polite",
+    );
+    expect(screen.getByText("안녕하세요").parentElement).toHaveAttribute(
+      "aria-live",
+      "polite",
+    );
+    expect(screen.getByText("Translating")).toHaveAttribute(
+      "aria-live",
+      "polite",
     );
   });
 });
