@@ -12,7 +12,7 @@ Live Voice Translator는 브라우저에서 마이크 음성을 인식하고, �
 - 음성, 전사, 번역 텍스트는 기본적으로 저장하거나 로그에 남기지 않는다.
 
 ## 2. 기술 스택
-
+    
 | 영역 | 사용 기술 |
 | --- | --- |
 | 웹 프레임워크 | Next.js App Router |
@@ -113,7 +113,7 @@ Client Component
 | Custom provider | `TRANSLATION_API_URL`, `TRANSLATION_API_KEY` 설정 | 지정된 provider에 POST 요청 |
 | MyMemory fallback | 위 설정이 모두 없음 | 공개 MyMemory 번역 엔드포인트 호출 |
 
-외부 전달본의 `.env.example`은 실제 번역 확인을 위해 기본적으로 공개 MyMemory provider를 사용한다. 오프라인 데모가 필요하면 `.env`에서 `TRANSLATION_PROVIDER=mock` 줄을 주석 해제한다.
+외부 전달본의 `.env.example`은 안정적인 실행 확인을 위해 `TRANSLATION_PROVIDER=mock`을 기본값으로 둔다. 실제 번역을 사용하려면 `.env`에서 해당 줄을 제거하거나 주석 처리한다.
 
 Custom provider는 아래 응답 형식을 반환해야 한다.
 
@@ -323,7 +323,7 @@ Harness 기반 작업은 다음 원칙을 따른다.
 
 - Windows 기본 실행은 `start-windows.bat`를 안내한다.
 - Docker 실행은 Docker Desktop 또는 Docker Engine 설치가 필요하므로 선택 사항으로 안내한다.
-- 오프라인 데모 모드가 아니라면 `.env`에서 `TRANSLATION_PROVIDER=mock`을 주석 처리하고 provider 설정을 검토한다.
+- 실제 번역 API를 쓰려면 `.env`에서 `TRANSLATION_PROVIDER=mock`을 제거하고 provider 설정을 검토한다.
 - `next` 명령 오류는 대개 의존성 설치 실패이므로 `node_modules` 삭제 후 재실행한다.
 - `zone allocation failed`는 production build 메모리 문제일 가능성이 높으므로 일반 실행 경로를 사용한다.
 - 브라우저 음성 인식은 Chrome 계열 브라우저에서 확인하는 것이 가장 안정적이다.
@@ -343,3 +343,4 @@ npm run test
 - `npm run test` 통과
 - Vitest 기준 9개 테스트 파일, 48개 테스트 통과
 - `TRANSLATION_PROVIDER=mock` 환경에서 `POST /api/translate` 정상 응답 확인
+
