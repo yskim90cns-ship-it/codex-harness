@@ -76,7 +76,36 @@ describe("POST /api/translate", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("returns mock translation when no provider is configured", async () => {
+  it("returns default public provider translations when no custom provider is configured", async () => {
+    vi.stubEnv("TRANSLATION_API_URL", "");
+    vi.stubEnv("TRANSLATION_API_KEY", "");
+    vi.stubEnv("TRANSLATION_PROVIDER", "");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({ responseData: { translatedText: "안녕하세요" } }),
+          { status: 200 },
+        ),
+      ),
+    );
+
+    const response = await POST(
+      jsonRequest({
+        text: "hello",
+        sourceLanguage: "en",
+        targetLanguage: "ko",
+      }),
+    );
+
+    await expect(response.json()).resolves.toEqual({
+      translatedText: "안녕하세요",
+    });
+    expect(response.status).toBe(200);
+  });
+
+  it("can return mock translations when explicitly configured", async () => {
+    vi.stubEnv("TRANSLATION_PROVIDER", "mock");
     vi.stubEnv("TRANSLATION_API_URL", "");
     vi.stubEnv("TRANSLATION_API_KEY", "");
 

@@ -5,7 +5,9 @@ node_modules/
 .DS_Store
 tdd-*.log
 .next/
+.next-dev/
 out/
+release/
 tsconfig.tsbuildinfo
 
 # phase execution outputs
