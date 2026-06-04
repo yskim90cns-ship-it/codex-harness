@@ -3,8 +3,5 @@
     "lint": "echo \"No lint script configured for this template\"",
     "build": "echo \"No build script configured for this template\"",
     "test": "python3 scripts/run_tests.py"
-  },
-  "devDependencies": {
-    "tdd-guard": "^1.6.8"
   }
 }

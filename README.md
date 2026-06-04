@@ -15,14 +15,10 @@ Codex CLI는 별도로 설치되어 있어야 합니다.
 
 `.codex/config.toml`을 Codex 설정으로 사용하면 다음 훅이 동작합니다.
 
-- `PreToolUse`: 파일 수정 전에 `tdd-guard` 실행
+- `PreToolUse`: 파일 수정 전에 Codex용 로컬 TDD precheck 실행
 - `Stop`: `npm run lint`, `npm run build`, `npm run test`, Python 실행기 테스트 실행
 
-`tdd-guard`가 설치되지 않은 상태에서는 초기 도입을 위해 통과합니다. 팀 규칙으로 강제하려면 환경 변수로 실패 모드를 켭니다.
-
-```sh
-export TDD_GUARD_REQUIRED=1
-```
+TDD precheck는 `.codex/hooks/tdd-precheck.mjs`에 있으며 외부 hook 패키지에 의존하지 않습니다. 구현 파일을 수정하는 hook payload에 테스트 파일 변경이 함께 없으면 JSON block 결정을 반환합니다.
 
 ## Phase 작성법
 

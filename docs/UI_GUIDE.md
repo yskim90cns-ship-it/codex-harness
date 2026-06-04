@@ -1,76 +1,102 @@
-# UI 디자인 가이드
+# UI Guide
 
-## 디자인 원칙
-1. {원칙 1 — 예: "도구처럼 보여야 한다. 마케팅 페이지가 아니라 매일 쓰는 대시보드."}
-2. {원칙 2}
-3. {원칙 3}
+## Design Principles
+1. It should feel like a developer operations dashboard, not a marketing page.
+2. Optimize for scanning: status, changed files, and failed/blocked steps must be visible without drilling into every file.
+3. Keep interactions predictable: filters, tabs, refresh, and detail panels should behave like standard productivity tools.
+4. Use restrained styling so status colors carry meaning.
 
-## AI 슬롭 안티패턴 — 하지 마라
-| 금지 사항 | 이유 |
-|-----------|------|
-| backdrop-filter: blur() | glass morphism은 AI 템플릿의 가장 흔한 징후 |
-| gradient-text (배경 그라데이션 텍스트) | AI가 만든 SaaS 랜딩의 1번 특징 |
-| "Powered by AI" 배지 | 기능이 아니라 장식. 사용자에게 가치 없음 |
-| box-shadow 글로우 애니메이션 | 네온 글로우 = AI 슬롭 |
-| 보라/인디고 브랜드 색상 | "AI = 보라색" 클리셰 |
-| 모든 카드에 동일한 rounded-2xl | 균일한 둥근 모서리는 템플릿 느낌 |
-| 배경 gradient orb (blur-3xl 원형) | 모든 AI 랜딩 페이지에 있는 장식 |
+## Layout
+- First screen: summary metrics, active/blocked/error steps, and recent file changes.
+- Main navigation: compact tabs or sidebar for Overview, Phases, Files, Output.
+- Detail view: selecting a phase or step reveals summaries, timestamps, output excerpts, and related files.
+- Width: use a full-width dashboard layout with a constrained inner max width only where text readability requires it.
+- Avoid landing-page hero sections. The dashboard itself is the first screen.
 
-## 색상
-### 배경
-| 용도 | 값 |
-|------|------|
-| 페이지 | {예: #0a0a0a} |
-| 카드 | {예: #141414} |
+## Color Tokens
+| Purpose | Value |
+| --- | --- |
+| Page background | `#0b0d10` |
+| Surface | `#151922` |
+| Surface raised | `#1d2430` |
+| Border | `#2a3342` |
+| Primary text | `#f4f7fb` |
+| Secondary text | `#a9b4c2` |
+| Muted text | `#738196` |
+| Accent | `#38bdf8` |
+| Completed | `#22c55e` |
+| Pending | `#94a3b8` |
+| Blocked | `#f59e0b` |
+| Error | `#ef4444` |
+| Deleted file | `#fb7185` |
+| Added file | `#34d399` |
+| Modified file | `#60a5fa` |
 
-### 텍스트
-| 용도 | 값 |
-|------|------|
-| 주 텍스트 | {예: text-white} |
-| 본문 | {예: text-neutral-300} |
-| 보조 | {예: text-neutral-400} |
-| 비활성 | {예: text-neutral-500} |
-
-### 데이터/시맨틱 색상
-| 용도 | 값 |
-|------|------|
-| {긍정/성공} | {예: #22c55e} |
-| {부정/에러} | {예: #ef4444} |
-| {중립/기본} | {예: #525252} |
-
-## 컴포넌트
-### 카드
-```
-{예: rounded-lg bg-[#141414] border border-neutral-800 p-6}
+## Components
+### Cards and Panels
+```text
+border: 1px solid #2a3342
+background: #151922
+border-radius: 8px
+padding: 16px
 ```
 
-### 버튼
-```
-Primary: {예: rounded-lg bg-white text-black hover:bg-neutral-200}
-Text:    {예: text-neutral-500 hover:text-neutral-300}
-```
+Use cards for repeated items such as phase rows, step rows, and file change entries. Do not put cards inside cards.
 
-### 입력 필드
-```
-{예: rounded-lg bg-neutral-900 border border-neutral-800 px-4 py-3}
+### Buttons
+```text
+Primary: #38bdf8 background, #061018 text
+Secondary: transparent background, #2a3342 border, #f4f7fb text
+Danger: transparent background, #ef4444 border/text
 ```
 
-## 레이아웃
-- 전체 너비: {예: max-w-5xl}
-- 정렬: {예: 좌측 정렬 기본. 중앙 정렬 금지}
-- 간격: {예: gap-3~4, 섹션 간 space-y-8}
+Icon buttons should use recognizable icons for refresh, filter, search, expand, collapse, and external/open actions.
 
-## 타이포그래피
-| 용도 | 스타일 |
-|------|--------|
-| 페이지 제목 | {예: text-4xl font-semibold text-white} |
-| 카드 제목 | {예: text-sm font-medium text-neutral-400} |
-| 본문 | {예: text-sm text-neutral-300 leading-relaxed} |
+### Status Badges
+- Completed: green
+- Pending: gray
+- Blocked: amber
+- Error: red
+- Keep badges compact and text-based. Do not animate status indicators.
 
-## 애니메이션
-- {허용할 애니메이션만 나열. 예: fade-in (0.4s), slide-up (0.5s)}
-- {그 외 모든 애니메이션 금지}
+### Tables and Lists
+- File changes and steps should use dense rows with stable columns.
+- Long paths should truncate from the middle or wrap only in detail views.
+- stdout/stderr should use monospace blocks with explicit truncation indicators.
 
-## 아이콘
-- {예: SVG 인라인, strokeWidth 1.5}
-- {예: 아이콘 컨테이너(둥근 배경 박스)로 감싸지 않는다}
+## Typography
+| Purpose | Style |
+| --- | --- |
+| Page title | `24px`, semibold |
+| Section title | `16px`, semibold |
+| Metric value | `28px`, semibold, tabular numbers |
+| Row title | `14px`, medium |
+| Body | `14px`, regular |
+| Metadata | `12px`, regular |
+| Code/output | `13px`, monospace |
+
+Use `font-variant-numeric: tabular-nums` for counts, timestamps, and durations.
+
+## Interactions
+- Auto-refresh is enabled for MVP and must include a visible pause/resume control.
+- Manual refresh remains available as an explicit icon button.
+- Filters should be reversible and never hide error/blocked counts from the summary.
+- Selecting a step should preserve the user's current phase/file filters.
+- Empty states should explain which file or command produced no data.
+
+## Anti-patterns
+| Do not use | Reason |
+| --- | --- |
+| gradient text | Distracts from operational status |
+| decorative gradient blobs | Adds noise without information |
+| glass morphism blur | Reduces legibility in dense dashboards |
+| oversized hero content | Delays access to the actual tool |
+| animated glowing status | Makes severity harder to scan |
+| purple/indigo AI branding palette | Generic and unrelated to local development state |
+| rounded-2xl everywhere | Makes dense operational UI feel soft and imprecise |
+
+## Accessibility
+- Status cannot rely on color alone; include text labels.
+- All controls need keyboard focus states.
+- Output blocks must preserve whitespace but allow copying.
+- Error and blocked states should be reachable through headings or landmark regions.

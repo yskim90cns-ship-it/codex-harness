@@ -1,9 +1,0 @@
-{
-  "pages": {
-    "/api/translate/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/translate/route.js"
-    ]
-  }
-}

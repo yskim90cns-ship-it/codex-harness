@@ -1,20 +1,20 @@
 [features]
 hooks = true
 
-[[hooks.PreToolUse]]
-matcher = "^apply_patch$|^Edit$|^Write$|^MultiEdit$"
+[[hooks.pre_tool_use]]
+matcher = "apply_patch|functions.apply_patch|Edit|Write|MultiEdit"
 
-[[hooks.PreToolUse.hooks]]
+[[hooks.pre_tool_use.hooks]]
 type = "command"
-command = 'bash .codex/hooks/tdd-guard.sh'
+command = 'node .codex/hooks/tdd-precheck.mjs'
 timeout = 10
-statusMessage = "Checking TDD guard"
+status_message = "Checking Codex TDD precheck"
 
-[[hooks.Stop]]
+[[hooks.stop]]
 matcher = ""
 
-[[hooks.Stop.hooks]]
+[[hooks.stop.hooks]]
 type = "command"
 command = 'bash .codex/hooks/lint_build_test.sh'
 timeout = 120
-statusMessage = "Running lint, build, and tests"
+status_message = "Running lint, build, and tests"
